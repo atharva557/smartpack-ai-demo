@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SmartPack AI | Live concept demo</title>
+<style>
+  :root{font-family:Arial,sans-serif;color:#243744;background:#f1f6f8}*{box-sizing:border-box}body{margin:0}
+  header{background:white;border-bottom:3px solid #007db8;padding:15px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+  .brand{font-weight:800;font-size:25px;color:#164a6b}.strap{font-size:13px;color:#527183;font-weight:700;text-align:right}
+  main{max-width:1220px;margin:20px auto;padding:0 18px;display:grid;grid-template-columns:285px 1fr;gap:18px}
+  .panel{background:white;border:1px solid #c9dae3;border-radius:12px;padding:18px;box-shadow:0 3px 12px #c9dbe480}
+  h1{font-size:19px;margin:0 0 5px;color:#164a6b}h2{font-size:17px;margin:0 0 10px;color:#164a6b}h3{font-size:15px;margin:0;color:#164a6b}
+  p{line-height:1.42}.note{font-size:12px;color:#627482;margin:5px 0 14px}label{display:block;margin:12px 0 5px;font-size:12px;font-weight:700}
+  select,input{width:100%;font:inherit;font-size:14px;padding:8px;border:1px solid #a8c1ce;border-radius:6px;background:white}
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}.eyebrow{font-size:11px;font-weight:800;color:#007db8;letter-spacing:.06em}
+  .summary{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;border-bottom:1px solid #dbe7ed;padding-bottom:12px}
+  .badge{background:#e7f2eb;border-radius:99px;padding:6px 10px;color:#2d7d60;font-size:11px;font-weight:800;white-space:nowrap}
+  .requirements{background:#eaf4f8;border-left:4px solid #007db8;padding:10px 12px;margin:12px 0;font-size:13px;line-height:1.5}
+  .result{display:grid;grid-template-columns:28px 1fr auto;gap:9px;align-items:start;border-top:1px solid #dbe7ed;padding:11px 0}
+  .rank{font-size:22px;font-weight:800;color:#007db8}.film{font-weight:800;color:#164a6b;font-size:16px}.detail{font-size:12px;color:#4a6471;margin-top:4px;line-height:1.4}
+  .score{color:#2d7d60;font-size:17px;font-weight:800}.bad{color:#b54848}.rejected{font-size:12px;border-top:1px solid #e0e9ee;padding:7px 0;line-height:1.35}
+  details{margin-top:14px;border-top:1px solid #dbe7ed;padding-top:10px}summary{cursor:pointer;font-size:13px;font-weight:800;color:#164a6b}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:11px}th,td{padding:6px;border-bottom:1px solid #e2eaee;text-align:left}th{color:#164a6b}
+  .foot{grid-column:1/-1;color:#5c707c;font-size:12px;line-height:1.45;margin-bottom:16px}.foot a{color:#007db8}
+  @media(max-width:800px){main{display:block}.panel{margin-bottom:14px}.strap{font-size:11px}}
+</style>
+</head>
+<body>
+<header><div class="brand">SmartPack AI</div><div class="strap">Deadbeat Lions · SIH 2026<br>Live rules + TOPSIS on an illustrative 18-film catalog</div></header>
+<main>
+  <section class="panel">
+    <h1>Food and route</h1><p class="note">Change any input. Requirements, rejections and the top three update live.</p>
+    <label for="food">Food</label><select id="food"><option value="mango">Whole mango</option><option value="biscuit">Biscuits</option><option value="cheese">Fresh cheese</option></select>
+    <div class="pair"><div><label for="temp">Temperature (°C)</label><input id="temp" type="number" min="0" max="40" value="13"></div><div><label for="rh">RH (%)</label><input id="rh" type="number" min="10" max="100" value="85"></div></div>
+    <label for="days">Target shelf life (days)</label><input id="days" type="number" min="1" max="90" value="10">
+    <label for="format">Package format</label><select id="format"></select>
+    <label for="priority">Ranking priority</label><select id="priority"><option value="balanced">Balanced</option><option value="cost">Lower cost</option><option value="circular">More recyclable</option></select>
+    <p class="note" id="food-source"></p>
+  </section>
+  <section class="panel">
+    <div class="summary"><div><div class="eyebrow">LIVE SHORTLIST</div><h1 id="heading">Whole mango</h1><p class="note" id="scenario"></p></div><span class="badge" id="count"></span></div>
+    <div class="requirements" id="requirements"></div>
+    <h2>Top three for lab screening</h2><div id="results"></div>
+    <details><summary id="reject-title">Rejected or held for review</summary><div id="rejected"></div></details>
+    <details><summary>View illustrative 18-film catalog</summary><div style="overflow:auto"><table><thead><tr><th>Structure</th><th>µm</th><th>OTR</th><th>WVTR</th><th>₹/m²*</th><th>Evidence</th></tr></thead><tbody id="catalog"></tbody></table></div></details>
+  </section>
+  <div class="foot"><strong>Prototype boundary:</strong> Ranking is live. Missing OTR/WVTR values use a small k-nearest-neighbour gap-fill on sample records; high uncertainty triggers a supplier TDS request. All unlabelled film properties, INR prices, food rules and compliance flags are illustrative assumptions, not measured specifications or FSSAI approval. The published mango case is the sole literature-valued film record. Confirm gas balance, migration, sealing and shelf life in a lab before use. Sources: <a href="https://www.mdpi.com/2077-0472/11/7/636" target="_blank" rel="noopener">mango MAP study</a>, <a href="https://doi.org/10.57745/MEBZF0" target="_blank" rel="noopener">2025 DSS baseline</a>, <a href="https://www.nature.com/articles/s41538-026-00741-7" target="_blank" rel="noopener">2026 permeability dataset</a>. *Sample cost assumptions.</div>
+</main>
+<script>
+// Demo records: only PA/PE-240 barrier values come from the cited mango study.
+const films=[
+ {n:'PA/PE MAP pouch',f:'PA/PE',t:240,o:7,w:.8,c:48,m:0,d:1,u:['pouch'],ref:13,rh:85,s:.10,src:'Wei et al. 2021'},
+ {n:'LDPE thin',f:'PE',t:60,o:2500,w:7,c:12,m:1,d:.8,u:['pouch','liner'],s:.12},
+ {n:'LDPE thick',f:'PE',t:90,o:1700,w:5,c:16,m:1,d:.8,u:['pouch','liner'],s:.12},
+ {n:'HDPE film',f:'PE',t:50,o:1800,w:4,c:14,m:1,d:.7,u:['pouch','liner'],s:.10},
+ {n:'BOPP film',f:'PP',t:35,o:1500,w:4,c:15,m:1,d:.8,u:['pouch','liner','lid'],s:.08},
+ {n:'BOPP/PE',f:'PP/PE',t:55,o:1100,w:3,c:18,m:0,d:.8,u:['pouch','liner'],s:.12},
+ {n:'BOPP/CPP',f:'PP',t:50,o:900,w:2.8,c:20,m:1,d:.8,u:['pouch','liner'],s:.10},
+ {n:'Metallised BOPP/PE',f:'PP/PE',t:65,o:5,w:.7,c:31,m:0,d:.8,u:['pouch','lid'],s:.05},
+ {n:'PET/PE',f:'PET/PE',t:70,o:90,w:2.3,c:24,m:0,d:.9,u:['pouch','lid'],s:.09},
+ {n:'PET/EVOH/PE',f:'EVOH',t:85,o:.4,w:1.8,c:42,m:0,d:.9,u:['pouch','lid'],s:.45},
+ {n:'PA/PE 90',f:'PA/PE',t:90,o:30,w:2,c:29,m:0,d:.8,u:['pouch','lid'],s:.13},
+ {n:'EVOH/PE',f:'EVOH',t:80,o:1,w:2.6,c:35,m:0,d:.8,u:['pouch','lid'],s:.40},
+ {n:'Aluminium/PE',f:'Al/PE',t:80,o:.02,w:.1,c:50,m:0,d:.9,u:['pouch','lid'],s:.02},
+ {n:'Coated paper/PE',f:'paper',t:100,o:150,w:5,c:26,m:0,d:.7,u:['liner','pouch'],s:.30},
+ {n:'Mono-PE barrier',f:'PE',t:75,o:25,w:1.2,c:28,m:1,d:.8,u:['pouch','liner'],s:.16},
+ {n:'Mono-PP barrier',f:'PP',t:60,o:45,w:null,c:26,m:1,d:.8,u:['pouch','lid'],s:.14},
+ {n:'PLA film',f:'PLA',t:70,o:1000,w:18,c:38,m:0,d:.5,u:['pouch','liner'],s:.50},
+ {n:'PE pilot film (TDS pending)',f:'PE',t:82,o:null,w:null,c:22,m:1,d:.7,u:['pouch','liner'],s:.16},
+];
+const foods={
+ mango:{title:'Whole mango',formats:[['map','Active MAP pouch','pouch'],['vent','Vented carton liner','liner']],temp:13,days:10,rh:85,source:'Respiration: Wei et al. 2021 mango trial; Indian cultivar and ripeness require lab ranges.'},
+ biscuit:{title:'Biscuits',formats:[['seal','Heat-sealed pouch','pouch'],['liner','Carton liner','liner']],temp:25,days:30,rh:65,source:'Non-respiring. Food moisture/composition: IFCT and product tests; film barrier: supplier TDS.'},
+ cheese:{title:'Fresh cheese',formats:[['vac','Vacuum pouch','pouch'],['lid','Tray lidding','lid']],temp:4,days:10,rh:75,source:'Non-respiring. Food/barrier starting cases: 2025 DSS; film data need supplier/lab TDS.'}
+};
+const presets={balanced:[.45,.20,.15,.20],cost:[.35,.35,.10,.20],circular:[.35,.15,.30,.20]};
+const $=id=>document.getElementById(id), esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function clamp(x,a,b){return Math.min(b,Math.max(a,x))}
+function setupFood(){const cfg=foods[$('food').value];$('temp').value=cfg.temp;$('rh').value=cfg.rh;$('days').value=cfg.days;$('format').innerHTML=cfg.formats.map(x=>`<option value="${x[0]}">${x[1]}</option>`).join('');render()}
+function req(food,temp,rh,days,format){
+  if(food==='mango'){
+    const liner=format==='vent', center=(liner?850:10)*Math.exp(.055*(temp-13))*Math.pow(10/days,.15);
+    return {lo:center*(liner?.30:.35),hi:center*(liner?2.8:4),wv:clamp((liner?9:2.1)*(85/rh)*Math.pow(10/days,.16),.5,15),mode:liner?'Respiration screen for a vented liner':'Active MAP screen; headspace gas must be checked'};
+  }
+  if(food==='biscuit')return {lo:0,hi:clamp(240*Math.pow(30/days,.55)*Math.exp(-.025*(temp-25)),2,1000),wv:clamp(3.2*Math.pow(30/days,.7)*(65/rh),.3,10),mode:'Non-respiring; moisture ingress is the main screen'};
+  return {lo:0,hi:clamp(16*Math.pow(10/days,.55)*Math.exp(-.035*(temp-4)),.3,150),wv:clamp(4.2*Math.pow(10/days,.45)*(75/rh),.5,12),mode:'Non-respiring; oxygen and microbial validation still required'};
+}
+function gapFill(f,metric){
+  if(f[metric]!=null)return {v:f[metric],unc:0,estimated:false};
+  const peers=films.filter(x=>x!==f&&x[metric]!=null).map(x=>({x,dist:Math.abs(Math.log(x.t/f.t))+(x.f===f.f?0:1.2)})).sort((a,b)=>a.dist-b.dist).slice(0,4);
+  const weights=peers.map(p=>1/(.2+p.dist));const sum=weights.reduce((a,b)=>a+b,0);
+  const logs=peers.map(p=>Math.log10(p.x[metric]));const mean=logs.reduce((a,v,i)=>a+v*weights[i],0)/sum;
+  const spread=Math.sqrt(logs.reduce((a,v,i)=>a+weights[i]*(v-mean)**2,0)/sum);
+  return {v:10**mean,unc:spread+.15,estimated:true};
+}
+function adjusted(f,metric,temp,rh){const raw=gapFill(f,metric);const baseT=f.ref??23,baseRH=f.rh??50;
+  const temperature=Math.exp((metric==='o'?.035:.04)*(temp-baseT));
+  const humidity=1+(f.s??.15)*(rh-baseRH)/100;
+  return {...raw,v:raw.v*temperature*clamp(humidity,.55,1.7)};
+}
+function topsis(rows,weights){
+  const matrix=rows.map(r=>[r.fit,1/r.f.c,r.f.m?1:.35,r.f.d]);
+  const norm=[0,1,2,3].map(j=>Math.sqrt(matrix.reduce((a,v)=>a+v[j]**2,0))||1);
+  const weighted=matrix.map(v=>v.map((x,j)=>x/norm[j]*weights[j]));
+  const best=[0,1,2,3].map(j=>Math.max(...weighted.map(v=>v[j]))),worst=[0,1,2,3].map(j=>Math.min(...weighted.map(v=>v[j])));
+  rows.forEach((r,i)=>{const dp=Math.sqrt(weighted[i].reduce((a,v,j)=>a+(v-best[j])**2,0)),dm=Math.sqrt(weighted[i].reduce((a,v,j)=>a+(v-worst[j])**2,0));r.score=dp+dm?dm/(dp+dm):.5});
+  rows.sort((a,b)=>b.score-a.score);
+}
+function render(){
+  const food=$('food').value,cfg=foods[food],temp=clamp(Number($('temp').value)||cfg.temp,0,40),rh=clamp(Number($('rh').value)||cfg.rh,10,100),days=clamp(Number($('days').value)||cfg.days,1,90);
+  const format=$('format').value,kind=cfg.formats.find(x=>x[0]===format)?.[2]||'pouch',r=req(food,temp,rh,days,format);
+  $('heading').textContent=cfg.title;$('scenario').textContent=`${temp}°C · ${rh}% RH · ${days}-day target · ${cfg.formats.find(x=>x[0]===format)?.[1]}`;
+  $('food-source').textContent=cfg.source;
+  $('requirements').innerHTML=`<strong>Illustrative screen:</strong> ${r.lo?`OTR ${r.lo.toFixed(1)}–${r.hi.toFixed(1)}`:`OTR ≤ ${r.hi.toFixed(1)}`} cm³/m²·day; WVTR ≤ ${r.wv.toFixed(1)} g/m²·day.<br>${esc(r.mode)}. Values shift with T, RH, days and format.`;
+  const accepted=[],rejected=[];
+  films.forEach(f=>{
+    let reason='';const o=adjusted(f,'o',temp,rh),w=adjusted(f,'w',temp,rh);
+    if(f.d<.6)reason='Sample food-contact documentation incomplete';
+    else if(!f.u.includes(kind))reason='Format mismatch';
+    else if(o.estimated&&o.unc>.5 || w.estimated&&w.unc>.5)reason='Missing barrier data; uncertainty >0.5 log10 unit. Request supplier TDS';
+    else if(r.lo&&o.v<r.lo*.75)reason='OTR below respiration screen; low-O₂ risk';
+    else if(o.v>r.hi*1.35)reason='OTR above oxygen screen';
+    else if(w.v>r.wv*1.35)reason='WVTR above moisture screen';
+    if(reason)rejected.push({f,reason});
+    else {const otarget=r.lo?Math.sqrt(r.lo*r.hi):r.hi*.35;
+      const ofit=Math.exp(-Math.abs(Math.log(Math.max(o.v,.001)/otarget))*.38),wfit=Math.min(1,r.wv/Math.max(w.v,.001));
+      accepted.push({f,o,w,fit:.68*ofit+.32*wfit});}
+  });
+  if(accepted.length)topsis(accepted,presets[$('priority').value]);
+  $('count').textContent=`${accepted.length} eligible · ${rejected.length} held`;
+  $('results').innerHTML=accepted.slice(0,3).map((x,i)=>`<div class="result"><div class="rank">${i+1}</div><div><div class="film">${esc(x.f.n)} · ${x.f.t} µm</div><div class="detail">Screen OTR ${x.o.v.toFixed(x.o.v<10?1:0)}, WVTR ${x.w.v.toFixed(1)} · sample ₹${x.f.c}/m² · ${x.f.m?'mono-material':'multi-material'}${x.o.estimated||x.w.estimated?' · sample kNN gap-fill':' '}<br>Why: fits current barrier screen; ${x.f.m?'mono-material option':'material trade-off'}; sample documentation score ${x.f.d.toFixed(1)}${x.f.src?' · published mango pouch values':''}.</div></div><div class="score">${Math.round(x.score*100)}</div></div>`).join('')||'<p class="bad">No film passes this illustrative screen. Request supplier TDS and expert review.</p>';
+  $('reject-title').textContent=`Rejected or held for review (${rejected.length})`;
+  $('rejected').innerHTML=rejected.map(x=>`<div class="rejected"><strong>${esc(x.f.n)}</strong>: ${esc(x.reason)}</div>`).join('')||'<div class="rejected">None in this scenario.</div>';
+}
+const cat=$('catalog');cat.innerHTML=films.map(f=>`<tr><td>${esc(f.n)}</td><td>${f.t}</td><td>${f.o??'gap-fill'}</td><td>${f.w??'gap-fill'}</td><td>${f.c}</td><td>${f.src?'published':'sample'}</td></tr>`).join('');
+['temp','rh','days','format','priority'].forEach(id=>$(id).addEventListener('input',render));$('food').addEventListener('change',setupFood);setupFood();
+</script>
+</body></html>
